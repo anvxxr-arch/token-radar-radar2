@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — pre-token protocols ranked by implied value</title>
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+
+<header class="mast">
+  <div class="wrap mast-row">
+    <div class="brand">
+      <h1 class="wordmark">Token Radar</h1>
+      <p class="sub" id="subtitle">—</p>
+    </div>
+    <dl class="stat" id="stat">
+      <div><dt>As of</dt><dd id="stat-asof">—</dd></div>
+      <div><dt>Source</dt><dd id="stat-source">—</dd></div>
+      <div><dt>Cohort</dt><dd id="stat-cohort">—</dd></div>
+    </dl>
+  </div>
+</header>
+
+<main class="wrap" id="board" tabindex="-1">
+
+  <section class="kpis" id="kpis" aria-label="Board totals"></section>
+
+  <div class="toolbar">
+    <div class="bar-inner">
+      <label class="field grow">
+        <span class="field-label">Search</span>
+        <input id="q" type="search" placeholder="Name, slug, category" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="field chips-field">
+        <span class="field-label" id="cat-label">Category</span>
+        <div class="chips" id="chips" role="group" aria-labelledby="cat-label"></div>
+      </div>
+      <label class="field">
+        <span class="field-label">Chain</span>
+        <select id="chain"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Sort</span>
+        <select id="sort">
+          <option value="implied">Implied value</option>
+          <option value="tvl">TVL</option>
+          <option value="change">7d change</option>
+          <option value="age">Age</option>
+          <option value="name">Name</option>
+        </select>
+      </label>
+      <button type="button" class="dir" id="dir" aria-label="Sort direction: descending" title="Sort direction">
+        <span aria-hidden="true" id="dir-glyph">↓</span>
+      </button>
+      <label class="switch">
+        <input type="checkbox" id="watch">
+        <span class="track" aria-hidden="true"></span>
+        <span>Watchlist only</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Views">
+    <button type="button" role="tab" id="tab-board" aria-controls="panel-board" aria-selected="true" data-tab="board">Ranked board</button>
+    <button type="button" role="tab" id="tab-live" aria-controls="panel-live" aria-selected="false" tabindex="-1" data-tab="live">Live tokens</button>
+  </div>
+
+  <section id="panel-board" role="tabpanel" aria-labelledby="tab-board" tabindex="0">
+    <div class="table-note" id="table-note"></div>
+    <div class="table-wrap">
+      <table class="board" id="board-table">
+        <caption class="sr">Pre-token protocols ranked by implied value under the radar-2 model.</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="c-rank" data-sort="rank" aria-sort="none"><button type="button">Rank</button></th>
+            <th scope="col" class="c-name" data-sort="name" aria-sort="none"><button type="button">Protocol</button></th>
+            <th scope="col" class="c-cat" data-sort="category" aria-sort="none"><button type="button">Category</button></th>
+            <th scope="col" class="c-num" data-sort="tvl" aria-sort="none"><button type="button">TVL</button></th>
+            <th scope="col" class="c-num" data-sort="change" aria-sort="none"><button type="button">7d</button></th>
+            <th scope="col" class="c-num c-implied" data-sort="implied" aria-sort="descending"><button type="button">Implied value</button></th>
+            <th scope="col" class="c-num" data-sort="age" aria-sort="none"><button type="button">Age</button></th>
+          </tr>
+        </thead>
+        <tbody id="board-body"></tbody>
+      </table>
+      <p class="empty" id="empty" hidden>No protocol matches these filters.</p>
+    </div>
+
+    <section class="sandbox" aria-labelledby="sandbox-title">
+      <div class="sandbox-head">
+        <h2 id="sandbox-title">Model sandbox</h2>
+        <button type="button" class="link" id="reset">Reset to house values</button>
+      </div>
+      <p class="note">The page's own arithmetic, run again on the snapshot's figures. This is not the board the entry hands in.</p>
+      <div class="sandbox-grid">
+        <div class="sliders" id="sliders"></div>
+        <div class="sandbox-out">
+          <span class="field-label">Top five under these weights, and where each moves</span>
+          <ol class="sandbox-list" id="sandbox-list"></ol>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <section id="panel-live" role="tabpanel" aria-labelledby="tab-live" tabindex="0" hidden>
+    <p class="note" id="live-note"></p>
+    <div class="table-wrap">
+      <table class="board live" id="live-table">
+        <caption class="sr">Live-token protocols, by market cap.</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="c-name">Protocol</th>
+            <th scope="col" class="c-cat">Category</th>
+            <th scope="col" class="c-num">TVL</th>
+            <th scope="col" class="c-num">Market cap</th>
+            <th scope="col" class="c-num">MC / TVL</th>
+            <th scope="col" class="c-num">7d</th>
+          </tr>
+        </thead>
+        <tbody id="live-body"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <h2>Model</h2>
+  <p class="formula" id="formula"></p>
+  <p class="note">Every protocol is scored by the same function. No protocol name is special-cased: the class multiple matches substrings of the category, never the name.</p>
+  <p class="mismatch" id="mismatch" hidden></p>
+  <p class="colophon" id="colophon"></p>
+</footer>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="d-title" hidden>
+  <div class="drawer-inner">
+    <div class="drawer-head">
+      <div class="d-head-text">
+        <h2 id="d-title">—</h2>
+        <p class="d-sub" id="d-sub"></p>
+      </div>
+      <button type="button" class="close" id="d-close" aria-label="Close detail">Close</button>
+    </div>
+    <div class="d-value">
+      <span class="field-label">Implied value</span>
+      <strong id="d-value">—</strong>
+      <span class="d-value-sub" id="d-value-sub"></span>
+    </div>
+    <div id="d-body"></div>
+  </div>
+</aside>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
